@@ -10,3 +10,4 @@ sudo
 fakeroot
 autoconf
 debugedit
+base-devel
