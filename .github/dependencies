@@ -5,3 +5,4 @@ meson
 clang
 cmake
 lld
+git

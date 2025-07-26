@@ -93,6 +93,7 @@ main( int32_t p_argc, char **p_argv )
 
     window.set_bg(0x0E0E0E_rgb);
 
+
     logger->log(debug, "Quitting SDL");
     sdl::quit();
 }
