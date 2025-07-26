@@ -36,12 +36,20 @@ jobs:
           sed -i 's/SigLevel    = Required DatabaseOptional/SigLevel    = Optional TrustAll/' /etc/pacman.conf
           pacman -Syyu --noconfirm --noprogressbar --needed - < .github/dependencies
 
-      - name: Install SDL3_TTF
+      - name: Creating user for SDL_TTF installation
         run: |
-          git clone https://aur.archlinux.org/sdl3_ttf.git
-          cd sdl3_ttf
-          makepkg -si
-          cd ../
+          useradd -m builduser
+          echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chown -R builduser .
+
+      - name: Install SDL_TTF
+        run: |
+          sudo -u builduser bash -c "
+            cd /home/builduser
+            git clone https://aur.archlinux.org/sdl3_ttf.git
+            cd sdl3_ttf
+            makepkg -si --noconfirm
+          "
 
       - name: compile
         run: |
