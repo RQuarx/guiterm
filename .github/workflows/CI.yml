@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - '**/meson.build'
+      - '**/meson_options.txt'
+      - '**/*.meson'
+      - '.github/workflows/*.yml'
+      - '**/*.cc'
+      - '**/*.hh'
+
+permissions:
+  contents: read
+
+jobs:
+  clang:
+    name: "Build Better Files"
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache pacman packages
+        uses: actions/cache@v4
+        with:
+          path: /var/cache/pacman/pkg
+          key: ${{ runner.os }}-pacman-${{ hashFiles('.github/dependencies') }}
+          restore-keys: |
+            ${{ runner.os }}-pacman-
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          sed -i 's/SigLevel    = Required DatabaseOptional/SigLevel    = Optional TrustAll/' /etc/pacman.conf
+          pacman -Syyu --noconfirm --noprogressbar --needed - < .github/dependencies
+
+      - name: Install SDL3_TTF
+        run: |
+          git clone https://aur.archlinux.org/sdl3_ttf.git
+          cd sdl3_ttf
+          makepkg -si
+          cd ../
+
+      - name: compile
+        run: |
+          CXX=clang++ CXX_LD=lld meson setup target
+          meson compile -C target

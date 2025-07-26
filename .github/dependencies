@@ -1,0 +1,7 @@
+base
+sdl3
+pkgconf
+meson
+clang
+cmake
+lld
