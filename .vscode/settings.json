@@ -1,0 +1,8 @@
+{
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--compile-commands-dir=target"
+    ],
+    "C_Cpp.default.compileCommands": "/home/kei/project/terminal/target/compile_commands.json",
+    "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
+}
