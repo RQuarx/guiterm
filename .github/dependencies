@@ -6,3 +6,4 @@ clang
 cmake
 lld
 git
+sudo
