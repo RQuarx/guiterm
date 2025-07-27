@@ -14,7 +14,7 @@ Window::Window( const std::shared_ptr<Logger> &p_logger,
     m_logger->log(info, "Creating a new sdl::Window");
     if (!SDL_CreateWindowAndRenderer(p_title.c_str(),
                                      p_size.first, p_size.second,
-                                     SDL_WINDOW_RESIZABLE,
+                                     SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT,
                                      &m_window, &m_render)) {
         m_logger->log(error, "Failed to create window and renderer: {}",
                       sdl::get_error());

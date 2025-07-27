@@ -18,6 +18,7 @@ source_files = files(
     'src/sdl/window.cc',
 
     'src/arg_parser.cc',
+    'src/config.cc',
     'src/log.cc',
     'src/main.cc',
     'src/sdl.cc',

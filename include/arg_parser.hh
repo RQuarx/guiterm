@@ -1,4 +1,5 @@
 #pragma once
+#include <print>
 #include <unordered_map>
 #include <optional>
 #include <variant>
@@ -9,13 +10,15 @@
 
 class ArgParser
 {
-    using arg_input = std::pair<std::string, std::string>;
-    using param_types = std::variant<std::string, int64_t, bool>;
 public:
+    using param_types = std::variant<std::string, int64_t, bool>;
+    using arg_input   = std::pair<std::string, std::string>;
+
     ArgParser( std::span<char *> p_args );
 
+
     [[nodiscard]]
-    auto get() -> const std::unordered_map<std::string, param_types> &;
+    auto get() -> std::unordered_map<std::string, param_types>;
 
 
     void add_flag( const arg_input &p_input );
@@ -63,7 +66,9 @@ private:
         const ssize_t l_idx { args_contain_long(p_arg.second) };
         std::optional<T> value;
 
+
         if (l_idx > -1) {
+            std::println("{}", m_args.back());
             value = to_type<T>(m_args.at(l_idx + 1));
             m_args.erase(m_args.begin() + l_idx + 1);
             m_args.erase(m_args.begin() + l_idx);

@@ -27,7 +27,10 @@ ArgParser::ArgParser( std::span<char *> p_args )
 
             m_args.push_back(arg.substr(0,  eq_idx));
             m_args.push_back(arg.substr(eq_idx + 1));
+            continue;
         }
+
+        m_args.push_back(arg);
     }
 }
 
@@ -57,7 +60,7 @@ ArgParser::add_flag( const arg_input &p_input )
 
 
 auto
-ArgParser::args_contain_short( const std::string &p_short ) -> long
+ArgParser::args_contain_short( const std::string &p_short ) -> ssize_t
 {
     if (p_short.empty()) return -1;
     const bool clean { !p_short.starts_with('-') };
@@ -65,7 +68,8 @@ ArgParser::args_contain_short( const std::string &p_short ) -> long
     for (size_t i { 0 }; i < m_args.size(); i++) {
         std::string &arg = m_args.at(i);
 
-        if (!arg.starts_with("--") && !arg.starts_with('-')) continue;
+        if (arg.starts_with("--")) continue;
+        if (!arg.starts_with('-')) continue;
 
         if (!clean) {
             if (arg.contains(p_short.at(1))) return i;
@@ -77,7 +81,7 @@ ArgParser::args_contain_short( const std::string &p_short ) -> long
 
 
 auto
-ArgParser::args_contain_long( const std::string &p_long ) -> long
+ArgParser::args_contain_long( const std::string &p_long ) -> ssize_t
 {
     const bool clean { !p_long.starts_with("--") };
 
@@ -96,5 +100,5 @@ ArgParser::args_contain_long( const std::string &p_long ) -> long
 
 
 auto
-ArgParser::get() -> const std::unordered_map<std::string, param_types> &
+ArgParser::get() -> std::unordered_map<std::string, param_types>
 { return m_results; }

@@ -7,8 +7,12 @@
 
 #include "sdl/window.hh"
 #include "arg_parser.hh"
+#include "config.hh"
+#include "utils.hh"
 #include "log.hh"
 #include "sdl.hh"
+
+#define NEW_SHARED()
 
 
 namespace
@@ -23,11 +27,8 @@ namespace
             "  -h --help                   Show this message.\n"
             "  -V --version                Show version info.\n"
             "\n"
-            "  -c --class      <str>       Define window class/app_id.          (guiterm)\n"
-            "  -d --directory  <dir>       Set custom starting directory.       ($HOME)  \n"
-            "  -e --command    <cmd>       Command and args to execute.                  \n"
-            "  -l --log        <int,dir>   Set log-level (0-3) and or log file. (warn/2) \n"
-            "  -t --title      <str>       Set a custom window title.           (guiterm)\n"
+            "  -c --config     <file>      Define a custom config path.            \n"
+            "  -l --log        <int,dir>   Set log level and or log file. (warn/2) \n"
         );
     }
 
@@ -47,24 +48,60 @@ namespace
         std::println(p_stream, "  HarfBuzz {}", HB_VERSION_STRING);
         std::println(p_stream, "  JsonCpp  {}", JSONCPP_VERSION_STRING);
     }
+
+
+    auto
+    get_args( int32_t &p_argc, char **&p_argv )
+    {
+        const std::string HOME { utils::getenv("HOME") };
+
+        ArgParser arg_parser({ p_argv, p_argv + p_argc });
+
+        arg_parser.add_flag({ "-h", "--help"    });
+        arg_parser.add_flag({ "-V", "--version" });
+
+        arg_parser.add_option<std::string>({ ""  , "--config"    }, "");
+        arg_parser.add_option<std::string>({ "-l", "--log"       }, "warn");
+
+        return arg_parser.get();
+    }
+
+
+    auto
+    start_app( const std::shared_ptr<Logger> &p_logger,
+               const std::shared_ptr<Config> &p_config ) -> int32_t
+    {
+        p_logger->log(debug, "Initializing SDL");
+        auto _ { sdl::init(APP_NAME, APP_VERSION, "org.kei.guiterm").or_else(
+        [&p_logger]( const std::string &p_msg ) -> sdl::void_or_msg
+        {
+            p_logger->log(error, "Failed to initialize SDL: {}", p_msg);
+            exit(1);
+        }) };
+
+        std::string title { APP_NAME };
+        if (utils::json_valid_member(p_config->get_json(),
+                                    "terminal", "window", "title")) {
+            title = (*p_config)["terminal"]["window"]["title"].asString();
+        }
+        sdl::Window window { p_logger, title, { 800, 600 } };
+
+        window.set_bg(0x0E0E0EFF_rgba);
+
+        if (window.run() == EXIT_FAILURE) return EXIT_FAILURE;
+
+        p_logger->log(debug, "Quitting SDL");
+        sdl::quit();
+
+        return EXIT_SUCCESS;
+    }
 }
 
 
 int32_t
 main( int32_t p_argc, char **p_argv )
 {
-    ArgParser arg_parser({ p_argv, p_argv + p_argc });
-
-    arg_parser.add_flag({ "-V", "--version" });
-    arg_parser.add_flag({ "-h", "--help"    });
-
-    arg_parser.add_option<std::string>({ "-l", "--log"       }, "warn");
-    arg_parser.add_option<std::string>({ "-c", "--class"     }, "guiterm");
-    arg_parser.add_option<std::string>({ "-t", "--title"     }, "guiterm");
-    arg_parser.add_option<std::string>({ "-e", "--command"   }, "");
-    arg_parser.add_option<std::string>({ "-d", "--directory" }, "");
-
-    auto args { arg_parser.get() };
+    auto args { get_args(p_argc, p_argv) };
 
     if (*std::get_if<bool>(&args.at("help"))) {
         print_help(std::cout, *p_argv);
@@ -76,25 +113,14 @@ main( int32_t p_argc, char **p_argv )
         exit(0);
     }
 
-    std::string *logger_arg { std::get_if<std::string>(&args.at("log")) };
+#define GET_ARG( p_name ) \
+    *std::get_if<std::string>(&args.at(p_name))
 
-    std::shared_ptr<Logger> logger { std::make_shared<Logger>(*logger_arg) };
+    std::string logger_arg { GET_ARG("log"   ) };
+    std::string config_arg { GET_ARG("config") };
 
-    logger->log(debug, "Initializing SDL");
-    auto _ { sdl::init(APP_NAME, APP_VERSION, "org.kei.guiterm").or_else(
-    [&logger]( const std::string &p_msg ) -> sdl::void_or_msg
-    {
-        logger->log(error, "Failed to initialize SDL: {}", p_msg);
-        exit(1);
-    }) };
+    auto logger { std::make_shared<Logger>(logger_arg)         };
+    auto config { std::make_shared<Config>(logger, config_arg) };
 
-
-    sdl::Window window { logger, APP_NAME, { 800, 600 } };
-
-    window.set_bg(0x0E0E0E_rgb);
-
-    if (window.run() == EXIT_FAILURE) return EXIT_FAILURE;
-
-    logger->log(debug, "Quitting SDL");
-    sdl::quit();
+    return start_app(logger, config);
 }

@@ -1,6 +1,5 @@
 /**
- * Configuration for guiterm could be a JSON or a JSONC type,
- * the file extionsion, does _NOT_ matter.
+ * Configuration for guiterm could be a JSON or a JSONC type.
  *
  * The location of the config could be placed in
  *   - $HOME/.config/guiterm/
