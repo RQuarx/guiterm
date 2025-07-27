@@ -3,6 +3,27 @@
         "--header-insertion=never",
         "--compile-commands-dir=target"
     ],
-    "C_Cpp.default.compileCommands": "/home/kei/project/terminal/target/compile_commands.json",
+    "mesonbuild.buildFolder": "target",
+    "mesonbuild.configureEnvironment": {
+        "CXX": "clang++",
+        "CXX_LD": "lld"
+    },
+
+    "editor.rulers": [
+        { // Limit for most lines
+            "column": 80,
+            "color": "#229e73"
+        },
+        { // Limit for string literals
+            "column": 90
+        }
+    ],
+
+    "editor.experimentalWhitespaceRendering": "svg",
+
+    "C_Cpp.autoAddFileAssociations": false,
+    "C_Cpp.intelliSenseEngine": "disabled",
     "C_Cpp.default.configurationProvider": "mesonbuild.mesonbuild",
+    // No idea on how to remove this.
+    "C_Cpp.default.compileCommands": "/home/kei/project/terminal/target/compile_commands.json"
 }

@@ -14,6 +14,10 @@ add_project_arguments([
     '-DAPP_VERSION="@0@"'.format(meson.project_version()),
 ], language: 'cpp')
 
+if get_option('buildtype').contains('debug')
+    add_project_arguments([ '-D__DEBUG' ], language: 'cpp')
+endif
+
 source_files = files(
     'src/sdl/window.cc',
 
