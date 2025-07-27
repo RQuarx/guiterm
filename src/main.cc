@@ -98,8 +98,8 @@ namespace
 }
 
 
-int32_t
-main( int32_t p_argc, char **p_argv )
+auto
+main( int32_t p_argc, char **p_argv ) -> int32_t
 {
     auto args { get_args(p_argc, p_argv) };
 

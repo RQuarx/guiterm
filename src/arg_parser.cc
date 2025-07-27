@@ -10,7 +10,7 @@ ArgParser::ArgParser( std::span<char *> p_args )
                 continue;
             }
 
-            size_t eq_idx = arg.find('=');
+            size_t eq_idx { arg.find('=') };
 
             m_args.push_back(arg.substr(0,  eq_idx));
             m_args.push_back(arg.substr(eq_idx + 1));
@@ -23,7 +23,7 @@ ArgParser::ArgParser( std::span<char *> p_args )
                 continue;
             }
 
-            size_t eq_idx = arg.find('=');
+            size_t eq_idx { arg.find('=') };
 
             m_args.push_back(arg.substr(0,  eq_idx));
             m_args.push_back(arg.substr(eq_idx + 1));
