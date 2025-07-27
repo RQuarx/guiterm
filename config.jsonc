@@ -1,0 +1,31 @@
+/**
+ * Configuration for guiterm could be a JSON or a JSONC type,
+ * the file extionsion, does _NOT_ matter.
+ *
+ * The location of the config could be placed in
+ *   - $HOME/.config/guiterm/
+ *   - $HOME/.config/
+ *   - $HOME/
+ *   - /etc/guiterm/
+ *
+ * The file must be named "guiterm".
+ */
+{
+    /* This section controls every setting about the terminal
+       ( font, colors, etc ) */
+    "terminal": {
+        "window": {
+            /* Could be ${cwd} to show the cwd as the title instead */
+            "title": "${cwd}",
+
+            /* Window padding [ x, y ] */
+            "padding": [ 5, 5 ],
+        },
+        "cursor": {
+            
+        }
+    },
+    "gui": {
+
+    }
+}

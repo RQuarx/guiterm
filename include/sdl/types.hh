@@ -76,6 +76,10 @@ operator""_rgba( unsigned long long val ) -> sdl::Color
 }
 
 
+#define COL_TO_SDL( p_color ) \
+    p_color.r, p_color.g, p_color.b, p_color.a
+
+
 template<>
 struct std::formatter<sdl::Color> : std::formatter<std::string>
 {

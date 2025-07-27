@@ -1,3 +1,4 @@
+#include <SDL3/SDL_timer.h>
 #include "sdl/window.hh"
 #include "log.hh"
 #include "sdl.hh"
@@ -75,4 +76,89 @@ Window::set_bg( sdl::Color p_color )
     m_bg_color = std::move(p_color);
     m_logger->log(debug, "Setting sdl::Window's background color to {}",
                   m_bg_color);
+}
+
+
+auto
+Window::run( void ) -> int32_t
+{
+    constexpr uint32_t PERIODIC_RENDER = 250;
+
+    bool running      { true  };
+    bool fail         { false };
+    bool needs_render { true  };
+    SDL_Event event;
+    uint64_t last_render_event { SDL_GetTicks() };
+
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            FuncRetval retval { event_stream(event) };
+
+            switch (retval) {
+            case RETURN_CONTINUE:
+                needs_render = true;
+                continue;
+            case RETURN_SKIP: break;
+            case RETURN_FAILURE:
+                running = false;
+                fail    = true;
+                break;
+            case RETURN_SUCCESS:
+                running = false;
+                break;
+            }
+            break;
+        }
+
+        if (!running) break;
+        uint32_t now = SDL_GetTicks();
+        if (now - last_render_event >= PERIODIC_RENDER) {
+            last_render_event = now;
+            needs_render = true;
+        }
+
+        if (!needs_render) continue;
+
+        FuncRetval retval { render_stream() };
+        needs_render = false;
+
+        switch (retval) {
+        case RETURN_CONTINUE: [[fallthrough]];
+        case RETURN_SKIP: continue;
+
+        case RETURN_FAILURE:
+            running = false;
+            fail    = true;
+            break;
+        case RETURN_SUCCESS:
+            running = false;
+            break;
+        }
+    }
+
+    return fail;
+}
+
+
+auto
+Window::event_stream( const SDL_Event &p_event ) -> FuncRetval
+{
+    switch (p_event.type) {
+    case SDL_EVENT_QUIT:
+        return RETURN_SUCCESS;
+    default:
+        return RETURN_SKIP;
+    }
+}
+
+
+auto
+Window::render_stream( void ) -> FuncRetval
+{
+    SDL_SetRenderDrawColor(m_render, COL_TO_SDL(m_bg_color));
+    SDL_RenderClear(m_render);
+
+    SDL_RenderPresent(m_render);
+    m_logger->log(debug, "Render");
+    return RETURN_CONTINUE;
 }

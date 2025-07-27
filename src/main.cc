@@ -93,6 +93,8 @@ main( int32_t p_argc, char **p_argv )
 
     window.set_bg(0x0E0E0E_rgb);
 
+    if (window.run() == EXIT_FAILURE) return EXIT_FAILURE;
+
     logger->log(debug, "Quitting SDL");
     sdl::quit();
 }
