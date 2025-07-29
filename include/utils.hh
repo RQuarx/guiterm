@@ -9,23 +9,6 @@ namespace fs = std::filesystem;
 namespace utils
 {
     /**
-     * @brief Splits a string at @p p_idx .
-     *
-     * @param p_str The string to split.
-     * @param p_pos The index where the string will be split.
-     * @return An std::pair<std::string, std::string> instance.
-     *
-     * The first string of the pair will contain the
-     *   0 -> p_idx part of the string,
-     * and the second string will contain
-     *  p_idx + 1 -> str.length() part of the string.
-     */
-    auto split_string( const std::string &p_str,
-                       const size_t      &p_pos
-                     ) -> std::pair<std::string, std::string>;
-
-
-    /**
      * @brief A wrapper for ::getenv().
      *
      * @param p_env The environment variable to get the value of.
@@ -71,7 +54,4 @@ namespace utils
         if (!p_root.isArray() || !p_root.isValidIndex(p_idx)) return false;
         return json_valid_member(p_root[p_idx], std::forward<T_Rest>(p_rest)...);
     }
-
-
-
 }

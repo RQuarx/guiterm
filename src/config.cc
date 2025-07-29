@@ -86,3 +86,15 @@ end:
     m_config = *buff;
     return;
 }
+
+
+auto
+Config::is_member( const Json::Value      &p_root,
+                   const Json::ArrayIndex &p_idx ) -> bool
+{ return p_root.isArray() && p_root.isValidIndex(p_idx); }
+
+
+auto
+Config::is_member( const Json::Value &p_root,
+                   const std::string &p_key ) -> bool
+{ return p_root.isObject() && p_root.isMember(p_key); }

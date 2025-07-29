@@ -6,6 +6,7 @@
 #include <string>
 #include <tuple>
 #include <SDL3/SDL_pixels.h>
+#include <json/value.h>
 
 
 namespace sdl
@@ -19,10 +20,10 @@ namespace sdl
     {
         using tuple_color = std::tuple<int8_t, int8_t, int8_t, int8_t>;
 
-        uint8_t r = 0x00;
-        uint8_t g = 0x00;
-        uint8_t b = 0x00;
-        uint8_t a = 0xFF;
+        uint8_t r { 0x00 };
+        uint8_t g { 0x00 };
+        uint8_t b { 0x00 };
+        uint8_t a { 0xFF };
 
         Color( void ) = default;
         Color( const SDL_FColor &p_color ) :
@@ -35,6 +36,13 @@ namespace sdl
             r(p_r),
             g(p_g),
             b(p_b)
+        {}
+        Color( const uint8_t &p_r, const uint8_t &p_g,
+               const uint8_t &p_b, const uint8_t &p_a ) :
+            r(p_r),
+            g(p_g),
+            b(p_b),
+            a(p_a)
         {}
 
 
@@ -50,6 +58,50 @@ namespace sdl
         }
 
 
+        [[nodiscard]]
+        static auto from_string( const std::string &p_hex ) -> Color
+        {
+            if (p_hex.empty()) return {};
+
+            static constexpr auto parse_hex_component {
+            [](const std::string &p_hex )
+            {
+                try {
+                    return static_cast<uint8_t>(std::stoi(p_hex, nullptr, 16));
+                } catch (...) {
+                    return static_cast<uint8_t>(255);
+                }
+            } };
+
+            const std::string hex { p_hex.starts_with('#')
+                                  ? p_hex.substr(1) : p_hex };
+            const size_t len { hex.length() };
+
+            if (len == 3 || len == 4) {
+                return {
+                    parse_hex_component({ 2, hex[0] }),
+                    parse_hex_component({ 2, hex[1] }),
+                    parse_hex_component({ 2, hex[2] }),
+                    parse_hex_component(len == 4
+                                       ? std::string( 2, hex[3] ) : "ff")
+                };
+            } else if (len == 6 || len == 8) {
+                return {
+                    parse_hex_component(hex.substr(0, 2)),
+                    parse_hex_component(hex.substr(2, 2)),
+                    parse_hex_component(hex.substr(4, 2)),
+                    parse_hex_component(len == 8
+                                        ? hex.substr(6, 2) : "ff"),
+                };
+            }
+
+            return {};
+        }
+
+
+        [[nodiscard]]
+        static auto from_json( const Json::Value &p_json ) -> Color
+        { return from_string(p_json.asString()); }
     };
 }
 

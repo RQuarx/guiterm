@@ -22,6 +22,12 @@
         },
         "cursor": {
             
+        },
+        "color": {
+            "window": {
+                "bg": "#0e0e0eee",
+                "fg": "#ffffff"
+            }
         }
     },
     "gui": {

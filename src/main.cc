@@ -79,14 +79,23 @@ namespace
             exit(1);
         }) };
 
-        std::string title { APP_NAME };
-        if (utils::json_valid_member(p_config->get_json(),
-                                    "terminal", "window", "title")) {
-            title = (*p_config)["terminal"]["window"]["title"].asString();
-        }
+
+        sdl::Color fg { sdl::Color::from_json(p_config->get("terminal",
+                                                            "color",
+                                                            "window",
+                                                            "fg")) };
+        sdl::Color bg { sdl::Color::from_json(p_config->get("terminal",
+                                                            "color",
+                                                            "window",
+                                                            "bg")) };
+        std::string title { p_config->get("terminal",
+                                          "window",
+                                          "title").asString() };
+        if (title.empty()) title = APP_NAME;
+
         sdl::Window window { p_logger, title, { 800, 600 } };
 
-        window.set_bg(0x0E0E0EFF_rgba);
+        window.set_color({ bg, fg });
 
         if (window.run() == EXIT_FAILURE) return EXIT_FAILURE;
 

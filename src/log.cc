@@ -1,6 +1,5 @@
 #include <cstring>
 #include <chrono>
-#include "utils.hh"
 #include "log.hh"
 
 
@@ -15,6 +14,19 @@ namespace
         if (p_str.contains("error")) return error;
         return MAX;
     }
+
+
+    auto
+    split_string( const std::string &p_str,
+                  const size_t      &p_pos
+                ) -> std::pair<std::string, std::string>
+    {
+        if (p_pos == 0 || p_pos == std::string::npos)
+            return { p_str, "" };
+        auto a { p_str.substr(0,  p_pos) };
+        auto b { p_str.substr(p_pos + 1) };
+        return { a, b };
+    }
 }
 
 
@@ -26,7 +38,7 @@ Logger::Logger( const std::string &p_arg_string )
     */
 
     const size_t comma_idx { p_arg_string.find(',') };
-    auto [ num, name ] { utils::split_string(p_arg_string, comma_idx) };
+    auto [ num, name ] { split_string(p_arg_string, comma_idx) };
 
     try {
         int32_t level { std::stoi(num) };

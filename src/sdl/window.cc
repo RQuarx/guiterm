@@ -71,11 +71,13 @@ Window::operator=( Window &&p_other ) noexcept -> Window &
 
 
 void
-Window::set_bg( sdl::Color p_color )
+Window::set_color( const std::pair<Color, Color> &p_colors )
 {
-    m_bg_color = std::move(p_color);
-    m_logger->log(debug, "Setting sdl::Window's background color to {}",
-                  m_bg_color);
+    m_bg = p_colors.first;
+    m_fg = p_colors.second;
+
+    m_logger->log(debug, "Setting the window colours to fg: {}, bg: {}",
+                  m_bg, m_fg);
 }
 
 
@@ -120,6 +122,7 @@ Window::run( void ) -> int32_t
         if (!needs_render) continue;
 
         FuncRetval retval { render_stream() };
+        m_logger->log(debug, "{}", get_window_px_size());
         needs_render = false;
 
         switch (retval) {
@@ -146,6 +149,8 @@ Window::event_stream( const SDL_Event &p_event ) -> FuncRetval
     switch (p_event.type) {
     case SDL_EVENT_QUIT:
         return RETURN_SUCCESS;
+    case SDL_EVENT_WINDOW_RESIZED:
+        return RETURN_CONTINUE;
     default:
         return RETURN_SKIP;
     }
@@ -155,10 +160,21 @@ Window::event_stream( const SDL_Event &p_event ) -> FuncRetval
 auto
 Window::render_stream( void ) -> FuncRetval
 {
-    SDL_SetRenderDrawColor(m_render, COL_TO_SDL(m_bg_color));
+    SDL_SetRenderDrawColor(m_render, COL_TO_SDL(m_bg));
     SDL_RenderClear(m_render);
 
     SDL_RenderPresent(m_render);
     m_logger->log(debug, "Render");
     return RETURN_CONTINUE;
+}
+
+
+auto
+Window::get_window_px_size( void ) -> std::pair<int32_t, int32_t>
+{
+    int32_t w;
+    int32_t h;
+
+    SDL_GetWindowSizeInPixels(m_window, &w, &h);
+    return { w, h };
 }

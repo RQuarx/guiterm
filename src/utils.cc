@@ -9,19 +9,6 @@ namespace fs = std::filesystem;
 namespace utils
 {
     auto
-    split_string( const std::string &p_str,
-                  const size_t      &p_pos
-                ) -> std::pair<std::string, std::string>
-    {
-        if (p_pos == 0 || p_pos == std::string::npos)
-            return { p_str, "" };
-        auto a { p_str.substr(0,  p_pos) };
-        auto b { p_str.substr(p_pos + 1) };
-        return { a, b };
-    }
-
-
-    auto
     getenv( const std::string &p_env ) -> std::string_view
     {
         const char *val { ::getenv(p_env.c_str()) };
