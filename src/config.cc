@@ -54,7 +54,7 @@ Config::Config( const std::shared_ptr<Logger> &p_logger,
         if (!fs::exists(p_config_path)) {
             m_logger->log(error, "Config file {} doesn't exist!",
                           p_config_path.string());
-            exit(1);
+            std::exit(1);
         }
 
         if (fs::is_regular_file(p_config_path)) goto end;
@@ -72,7 +72,7 @@ Config::Config( const std::shared_ptr<Logger> &p_logger,
     }
 
     m_logger->log(error, "Unable to find config.");
-    exit(1);
+    std::exit(1);
 
 end:
     m_logger->log(info, "Parsing config file at {}", p_config_path.string());
@@ -81,7 +81,7 @@ end:
     if (!buff) {
         m_logger->log(error, "Failed to parse {}: {}",
                       p_config_path.string(), buff.error());
-        exit(1);
+        std::exit(1);
     }
     m_config = *buff;
     return;

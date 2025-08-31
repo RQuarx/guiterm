@@ -10,7 +10,7 @@ ArgParser::ArgParser( std::span<char *> p_args )
                 continue;
             }
 
-            size_t eq_idx { arg.find('=') };
+            size_t eq_idx = arg.find('=');
 
             m_args.push_back(arg.substr(0,  eq_idx));
             m_args.push_back(arg.substr(eq_idx + 1));
@@ -23,11 +23,10 @@ ArgParser::ArgParser( std::span<char *> p_args )
                 continue;
             }
 
-            size_t eq_idx { arg.find('=') };
+            size_t eq_idx = arg.find('=');
 
             m_args.push_back(arg.substr(0,  eq_idx));
             m_args.push_back(arg.substr(eq_idx + 1));
-            continue;
         }
 
         m_args.push_back(arg);
@@ -66,14 +65,13 @@ ArgParser::args_contain_short( const std::string &p_short ) -> ssize_t
     const bool clean { !p_short.starts_with('-') };
 
     for (size_t i { 0 }; i < m_args.size(); i++) {
-        std::string &arg = m_args.at(i);
+        std::string &arg { m_args.at(i) };
 
-        if (arg.starts_with("--")) continue;
-        if (!arg.starts_with('-')) continue;
+        if (!arg.starts_with("--") && !arg.starts_with('-')) continue;
 
-        if (!clean) {
+        if (!clean)
             if (arg.contains(p_short.at(1))) return i;
-        } else if (arg.contains(p_short)) return i;
+        if (arg.contains(p_short)) return i;
     }
 
     return -1;
@@ -100,5 +98,5 @@ ArgParser::args_contain_long( const std::string &p_long ) -> ssize_t
 
 
 auto
-ArgParser::get() -> std::unordered_map<std::string, param_types>
+ArgParser::get() -> const std::unordered_map<std::string, param_types> &
 { return m_results; }

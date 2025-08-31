@@ -13,6 +13,9 @@
     /* This section controls every setting about the terminal
        ( font, colors, etc ) */
     "terminal": {
+        /* Set as an empty string to use the user shell. */
+        "proc": "",
+
         "window": {
             /* Could be ${cwd} to show the cwd as the title instead */
             "title": "${cwd}",

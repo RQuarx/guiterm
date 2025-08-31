@@ -7,6 +7,8 @@ add_project_dependencies([
     dependency('sdl3'),
     dependency('sdl3-ttf'),
     dependency('jsoncpp'),
+    dependency('libuv'),
+    dependency('boost', modules: [ 'filesystem', 'system', 'process' ])
 ], language: 'cpp')
 
 add_project_arguments([
@@ -25,6 +27,7 @@ source_files = files(
     'src/config.cc',
     'src/log.cc',
     'src/main.cc',
+    'src/process.cc',
     'src/sdl.cc',
     'src/utils.cc',
 )

@@ -28,7 +28,7 @@ namespace sdl
     {
         if (!SDL_Init(SDL_INIT_VIDEO))
             return std::unexpected(get_error());
-        atexit(quit);
+        std::atexit(quit);
 
         if (!SDL_SetAppMetadata(p_app_name.c_str(),
                                 p_app_version.c_str(),

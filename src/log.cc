@@ -63,7 +63,7 @@ Logger::Logger( const std::string &p_arg_string )
         m_log_file.open(name, std::ios_base::app);
         if (m_log_file.fail() && !m_log_file.eof()) {
             log(error, "Failed to open {}: {}", name, std::strerror(errno));
-            exit(1);
+            std::exit(1);
         }
     }
 

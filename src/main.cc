@@ -4,6 +4,7 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <harfbuzz/hb.h>
 #include <json/json.h>
+#include <uv.h>
 
 #include "sdl/window.hh"
 #include "arg_parser.hh"
@@ -27,8 +28,9 @@ namespace
             "  -h --help                   Show this message.\n"
             "  -V --version                Show version info.\n"
             "\n"
-            "  -c --config     <file>      Define a custom config path.            \n"
+            "     --config     <file>      Define a custom config path.            \n"
             "  -l --log        <int,dir>   Set log level and or log file. (warn/2) \n"
+            "  -c --command    <path>      Set the command to run by the term.     \n"
         );
     }
 
@@ -47,6 +49,7 @@ namespace
                                                       SDL_TTF_MICRO_VERSION);
         std::println(p_stream, "  HarfBuzz {}", HB_VERSION_STRING);
         std::println(p_stream, "  JsonCpp  {}", JSONCPP_VERSION_STRING);
+        std::println(p_stream, "  libuv    {}", uv_version_string());
     }
 
 
@@ -55,12 +58,13 @@ namespace
     {
         const std::string HOME { utils::getenv("HOME") };
 
-        ArgParser arg_parser({ p_argv, p_argv + p_argc });
+        ArgParser arg_parser({ p_argv + 1, p_argv + p_argc });
 
         arg_parser.add_flag({ "-h", "--help"    });
         arg_parser.add_flag({ "-V", "--version" });
 
         arg_parser.add_option<std::string>({ ""  , "--config"    }, "");
+        arg_parser.add_option<std::string>({ "-c", "--command"   }, "");
         arg_parser.add_option<std::string>({ "-l", "--log"       }, "warn");
 
         return arg_parser.get();
@@ -76,7 +80,7 @@ namespace
         [&p_logger]( const std::string &p_msg ) -> sdl::void_or_msg
         {
             p_logger->log(error, "Failed to initialize SDL: {}", p_msg);
-            exit(1);
+            std::exit(1);
         }) };
 
 
@@ -108,18 +112,18 @@ namespace
 
 
 auto
-main( int32_t p_argc, char **p_argv ) -> int32_t
+main( int32_t p_argc, char **p_argv ) -> int
 {
     auto args { get_args(p_argc, p_argv) };
 
     if (*std::get_if<bool>(&args.at("help"))) {
         print_help(std::cout, *p_argv);
-        exit(0);
+        std::exit(0);
     }
 
     if (*std::get_if<bool>(&args.at("version"))) {
         print_version(std::cout);
-        exit(0);
+        std::exit(0);
     }
 
 #define GET_ARG( p_name ) \

@@ -18,6 +18,7 @@ namespace sdl
             RETURN_FAILURE,
             RETURN_SUCCESS,
             RETURN_CONTINUE,
+            RETURN_FORCE,
         };
 
         Window( const std::shared_ptr<Logger> &p_logger,

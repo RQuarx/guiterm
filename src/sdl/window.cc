@@ -21,15 +21,15 @@ Window::Window( const std::shared_ptr<Logger> &p_logger,
         return;
     }
 
-    if (!SDL_SetRenderVSync(m_render, 1))
-        m_logger->log(error, "Failed to set render vysnc: {}",
-                      sdl::get_error());
+    // if (!SDL_SetRenderVSync(m_render, 1))
+    //     m_logger->log(error, "Failed to set render vysnc: {}",
+    //                   sdl::get_error());
 }
 
 
 Window::~Window( void )
 {
-    m_logger->log(info, "Destorying an sdl::Window instance");
+    m_logger->log(info, "Destroying an sdl::Window instance");
     if (m_render != nullptr) {
         SDL_DestroyRenderer(m_render);
         m_render = nullptr;
@@ -108,12 +108,15 @@ Window::run( void ) -> int32_t
             case RETURN_SUCCESS:
                 running = false;
                 break;
+            case RETURN_FORCE:
+                needs_render = true;
+                break;
             }
             break;
         }
 
         if (!running) break;
-        uint32_t now = SDL_GetTicks();
+        uint64_t now { SDL_GetTicks() };
         if (now - last_render_event >= PERIODIC_RENDER) {
             last_render_event = now;
             needs_render = true;
@@ -126,6 +129,7 @@ Window::run( void ) -> int32_t
         needs_render = false;
 
         switch (retval) {
+        case RETURN_FORCE: [[fallthrough]];
         case RETURN_CONTINUE: [[fallthrough]];
         case RETURN_SKIP: continue;
 
@@ -150,7 +154,7 @@ Window::event_stream( const SDL_Event &p_event ) -> FuncRetval
     case SDL_EVENT_QUIT:
         return RETURN_SUCCESS;
     case SDL_EVENT_WINDOW_RESIZED:
-        return RETURN_CONTINUE;
+        return render_stream();
     default:
         return RETURN_SKIP;
     }
